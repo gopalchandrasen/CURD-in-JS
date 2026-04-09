@@ -1,15 +1,17 @@
-import express from 'express';
-import Product from '../models/Product.js';
-import { protect } from '../middleware/authMiddleware.js';
+import express from "express";
+import Product from "../models/Product.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.use(protect);
 
 // GET all products
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const products = await Product.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const products = await Product.find({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -17,13 +19,15 @@ router.get('/', async (req, res) => {
 });
 
 // GET single product
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     if (product.user.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized to view this product' });
+      return res
+        .status(401)
+        .json({ message: "Not authorized to view this product" });
     }
 
     res.json(product);
@@ -33,11 +37,11 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST new product
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const newProduct = new Product({
       ...req.body,
-      user: req.user._id
+      user: req.user._id,
     });
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
@@ -47,13 +51,15 @@ router.post('/', async (req, res) => {
 });
 
 // PUT update product
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     if (product.user.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized to update this product' });
+      return res
+        .status(401)
+        .json({ message: "Not authorized to update this product" });
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -68,17 +74,19 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE product
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     if (product.user.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized to delete this product' });
+      return res
+        .status(401)
+        .json({ message: "Not authorized to delete this product" });
     }
 
     await Product.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Product deleted' });
+    res.json({ message: "Product deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
